@@ -18,7 +18,7 @@ class MenuApp(ctk.CTk):
         self.is_running = True
 
         super().__init__()
-        self.geometry("400x880")
+        self.geometry("400x920")
         ctk.set_default_color_theme("dark-blue")
         ctk.set_widget_scaling(0.8)
 
@@ -89,44 +89,50 @@ class MenuApp(ctk.CTk):
         self.settings_menu.pack(padx=5, pady=5, fill="both", expand=True)
 
     def start_status_polling(self):
-        """Start polling recoil and flashlight states every 200ms to update status bar."""
+        """Poll recoil and flashlight states every 200ms, scheduling UI updates safely on main thread."""
         def _poll():
             while True:
                 try:
                     recoil_on = self.recoil_menu.get_is_enabled()
                     flashlight_on = self.flashlight_menu.get_is_enabled()
 
-                    self.recoil_status_label.configure(
-                        text="● Recoil: ON" if recoil_on else "● Recoil: OFF",
-                        text_color="#44FF77" if recoil_on else "#888888",
-                    )
-                    self.flashlight_status_label.configure(
-                        text="● Flashlight: ON" if flashlight_on else "● Flashlight: OFF",
-                        text_color="#44FF77" if flashlight_on else "#888888",
-                    )
+                    # Schedule UI updates on the main thread via after()
+                    self.after(0, lambda r=recoil_on, f=flashlight_on: self._update_status_labels(r, f))
                 except Exception:
                     pass
                 time.sleep(0.2)
 
         threading.Thread(target=_poll, daemon=True).start()
 
+    def _update_status_labels(self, recoil_on: bool, flashlight_on: bool):
+        """Called on the main thread — safe to update tkinter widgets."""
+        try:
+            self.recoil_status_label.configure(
+                text="● Recoil: ON" if recoil_on else "● Recoil: OFF",
+                text_color="#44FF77" if recoil_on else "#888888",
+            )
+            self.flashlight_status_label.configure(
+                text="● Flashlight: ON" if flashlight_on else "● Flashlight: OFF",
+                text_color="#44FF77" if flashlight_on else "#888888",
+            )
+        except Exception:
+            pass
+
     def set_makcu_connected(self):
-        """Flash Makcu Connected green for 10 seconds then hide."""
+        """Flash Makcu Connected green for 10 seconds then hide — UI updates via after()."""
         def _flash():
             end_time = time.monotonic() + 10.0
             visible = True
             while time.monotonic() < end_time:
+                text = "● Makcu Connected" if visible else ""
                 try:
-                    self.status_label.configure(
-                        text="● Makcu Connected" if visible else "",
-                        text_color="#44FF77"
-                    )
+                    self.after(0, lambda t=text: self.status_label.configure(text=t, text_color="#44FF77"))
                 except Exception:
                     return
                 visible = not visible
                 time.sleep(0.8)
             try:
-                self.status_label.configure(text="")
+                self.after(0, lambda: self.status_label.configure(text=""))
             except Exception:
                 pass
 
@@ -134,6 +140,6 @@ class MenuApp(ctk.CTk):
 
     def set_makcu_disconnected(self):
         try:
-            self.status_label.configure(text="● Makcu Not Connected", text_color="#FF4444")
+            self.after(0, lambda: self.status_label.configure(text="● Makcu Not Connected", text_color="#FF4444"))
         except Exception:
             pass
