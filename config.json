@@ -16,12 +16,12 @@
     "loaded_script": "Aug - Best"
   },
   "flashlight": {
-    "enabled": 0,
+    "enabled": 1,
     "keybind": "M4",
     "hold_threshold_ms": "20",
     "cooldown_ms": "5000",
-    "pre_fire_min_ms": "110",
-    "pre_fire_max_ms": "180"
+    "pre_fire_min_ms": "100",
+    "pre_fire_max_ms": "150"
   },
   "settings": {
     "game_scalar": "Arena Breakout Infinite",

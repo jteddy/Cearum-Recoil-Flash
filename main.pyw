@@ -43,7 +43,7 @@ def main():
 
     flashlight_thread = threading.Thread(
         target=flashlight.run_flashlight,
-        args=(app.flashlight_menu,),
+        args=(app.flashlight_menu, app.recoil_menu),
         daemon=True
     )
     flashlight_thread.start()

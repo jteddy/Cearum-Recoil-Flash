@@ -2,6 +2,7 @@ import time
 import threading
 from mouse.makcu import makcu_controller
 from menu.flashlight_menu import FlashlightMenu
+from menu.recoil_menu import RecoilMenu
 
 
 class flashlight:
@@ -12,12 +13,15 @@ class flashlight:
         makcu_controller.click_button(keybind)
 
     @staticmethod
-    def run_flashlight(app: FlashlightMenu):
+    def run_flashlight(app: FlashlightMenu, recoil_app: RecoilMenu):
         """
         Behaviour:
-        - Watches for LMB press.
-        - Only triggers flashlight if LMB is held for longer than the hold
-          threshold — this prevents regular UI clicks from firing the flashlight.
+        - Flashlight Enable checkbox acts as a master switch — if unticked,
+          flashlight never fires regardless of recoil state.
+        - When enabled, flashlight only fires if Recoil is also enabled.
+          This means the Recoil toggle keybind controls both features together,
+          preventing flashlight from firing in menus/inventory.
+        - Hold threshold prevents short UI clicks from triggering the flashlight.
         - Cooldown prevents re-triggering on rapid follow-up shots.
         - Click is dispatched on a fire-and-forget thread so it never blocks.
         """
@@ -27,7 +31,15 @@ class flashlight:
         threshold_triggered = False
 
         while True:
+            # Master switch — flashlight checkbox must be ticked
             if not app.get_is_enabled():
+                lmb_was_pressed = False
+                threshold_triggered = False
+                time.sleep(0.02)
+                continue
+
+            # Recoil must also be enabled — ties flashlight to the recoil toggle
+            if not recoil_app.get_is_enabled():
                 lmb_was_pressed = False
                 threshold_triggered = False
                 time.sleep(0.02)
