@@ -66,10 +66,13 @@ class flashlight:
                 if held_duration >= app.get_hold_threshold():
                     threshold_triggered = True
                     if now >= cooldown_until:
-                        cooldown_until = now + app.get_cooldown_ms()
+                        # Set cooldown_until before dispatching thread — prevents race condition
+                        cooldown_ms = app.get_cooldown_ms()
+                        pre_fire = app.get_pre_fire_delay()
+                        cooldown_until = now + cooldown_ms
                         threading.Thread(
                             target=flashlight._delayed_click,
-                            args=(keybind, app.get_pre_fire_delay()),
+                            args=(keybind, pre_fire),
                             daemon=True,
                         ).start()
 

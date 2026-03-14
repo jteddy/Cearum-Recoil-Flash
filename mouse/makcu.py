@@ -30,38 +30,43 @@ class makcu_controller:
 
     @staticmethod
     def connect():
+        # Check under lock whether we need to connect at all
         with makcu_controller.connection_lock:
-            if makcu_controller.controller is None:
-                try:
-                    makcu_controller.controller = create_controller(
-                        debug=False,
-                        auto_reconnect=True
-                    )
+            if makcu_controller.controller is not None:
+                return makcu_controller.controller
 
-                    def on_button_event(button: MouseButton, pressed: bool):
-                        if button == MouseButton.LEFT:
-                            makcu_controller.button_states["LMB"] = pressed
-                        elif button == MouseButton.RIGHT:
-                            makcu_controller.button_states["RMB"] = pressed
-                        elif button == MouseButton.MIDDLE:
-                            makcu_controller.button_states["MMB"] = pressed
-                        elif button == MouseButton.MOUSE4:
-                            makcu_controller.button_states["M4"] = pressed
-                        elif button == MouseButton.MOUSE5:
-                            makcu_controller.button_states["M5"] = pressed
+        # Do the USB IO outside the lock so is_connected() isn't blocked during startup
+        try:
+            controller = create_controller(debug=False, auto_reconnect=True)
 
-                    makcu_controller.controller.set_button_callback(on_button_event)
-                    makcu_controller.controller.enable_button_monitoring(True)
+            def on_button_event(button: MouseButton, pressed: bool):
+                if button == MouseButton.LEFT:
+                    makcu_controller.button_states["LMB"] = pressed
+                elif button == MouseButton.RIGHT:
+                    makcu_controller.button_states["RMB"] = pressed
+                elif button == MouseButton.MIDDLE:
+                    makcu_controller.button_states["MMB"] = pressed
+                elif button == MouseButton.MOUSE4:
+                    makcu_controller.button_states["M4"] = pressed
+                elif button == MouseButton.MOUSE5:
+                    makcu_controller.button_states["M5"] = pressed
 
-                    makcu_controller.is_connected_flag = True
+            controller.set_button_callback(on_button_event)
+            controller.enable_button_monitoring(True)
 
-                except Exception as e:
-                    print(f"[MAKCU] Connection error: {e}")
-                    makcu_controller.is_connected_flag = False
-                    makcu_controller.controller = None
-                    return None
+            # Store result under lock
+            with makcu_controller.connection_lock:
+                makcu_controller.controller = controller
+                makcu_controller.is_connected_flag = True
 
             return makcu_controller.controller
+
+        except Exception as e:
+            print(f"[MAKCU] Connection error: {e}")
+            with makcu_controller.connection_lock:
+                makcu_controller.is_connected_flag = False
+                makcu_controller.controller = None
+            return None
 
     @staticmethod
     def StartButtonListener():

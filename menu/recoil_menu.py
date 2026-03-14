@@ -18,12 +18,12 @@ def _default_scripts_dir() -> str:
 
 
 class RecoilMenu(ctk.CTkFrame):
-    SCRIPTS_DIR = _default_scripts_dir()
     LOADED_SCRIPT_NAME = "NONE"
 
     def __init__(self, parent):
         super().__init__(parent)
 
+        self.SCRIPTS_DIR = _default_scripts_dir()  # instance variable — no shared state
         self.vectors = []
         self.configure(fg_color="#232323")
 
@@ -35,7 +35,7 @@ class RecoilMenu(ctk.CTkFrame):
         self.enable_return_crosshair, _ = Widgets.render_checkbox(self, "Return Crosshair", False)
 
         self.randomisation_strength_slider, self.randomisation_strength_slider_value_label = Widgets.render_slider(self, "Randomisation Strength", 0.5, 0, 3, self.update_randomisation_label)
-        self.scalar_slider, self.scalar_value_label = Widgets.render_slider(self, "Recoil Scalar", 1.0, 0.0, 3.0, self.update_scalar_label)
+        self.scalar_slider, self.scalar_value_label = Widgets.render_slider(self, "Recoil Scalar", 1.0, 0.0, 5.0, self.update_scalar_label)
         self.control_x_slider, self.control_x_value_label = Widgets.render_slider(self, "X Control", 1.0, 0.0, 1.0, self.update_x_control_label)
         self.control_y_slider, self.control_y_value_label = Widgets.render_slider(self, "Y Control", 1.0, 0.0, 1.0, self.update_y_control_label)
         self.return_speed_slider, self.return_speed_value_label = Widgets.render_slider(self, "Return Speed", 0.5, 0.00, 2.00, self.update_return_crosshair_label)
