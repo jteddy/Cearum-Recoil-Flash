@@ -12,8 +12,8 @@
     "x_control": 1.0,
     "y_control": 1.0,
     "return_speed": 0.0,
-    "scripts_dir": "C:/Scripts/Flashlight/Cearum-Recoil-main/saved_scripts/ABI",
-    "loaded_script": "Aug - Best"
+    "scripts_dir": "C:\\Scripts\\Flashlight\\Cearum-Recoil-main\\saved_scripts",
+    "loaded_script": "NONE"
   },
   "flashlight": {
     "enabled": 0,
