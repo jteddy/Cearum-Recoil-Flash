@@ -31,29 +31,22 @@ class recoil:
         lmb_was_pressed = False
         last_toggle_state = False
         last_cycle_state = False
-        # Note: debounce timestamps initialised inside loop setup below
-
-        last_toggle_time = 0.0
-        last_cycle_time = 0.0
-        DEBOUNCE = 0.3  # seconds — prevents double-trigger without blocking the loop
 
         while True:
             toggle_key = RecoilMenu.get_toggle_keybind(app)
             if toggle_key != "NONE":
                 toggle_key_pressed = makcu_controller.get_button_state(toggle_key)
-                now = time.monotonic()
-                if toggle_key_pressed and not last_toggle_state and (now - last_toggle_time) >= DEBOUNCE:
+                if toggle_key_pressed and not last_toggle_state:
                     app.enable_checkbox.toggle()
-                    last_toggle_time = now
+                    time.sleep(0.5)
                 last_toggle_state = toggle_key_pressed
 
             cycle_key = RecoilMenu.get_cycle_bind(app)
             if cycle_key != "NONE":
                 cycle_key_pressed = makcu_controller.get_button_state(cycle_key)
-                now = time.monotonic()
-                if cycle_key_pressed and not last_cycle_state and (now - last_cycle_time) >= DEBOUNCE:
+                if cycle_key_pressed and not last_cycle_state:
                     RecoilMenu.cycle_script(app)
-                    last_cycle_time = now
+                    time.sleep(0.5)
                 last_cycle_state = cycle_key_pressed
 
             if not RecoilMenu.get_is_enabled(app):
@@ -111,10 +104,9 @@ class recoil:
                 actual_y = y * RecoilMenu.get_y_control(app) * scalar
 
                 start_time = time.perf_counter()
-                move_completed = makcu_controller.move_mouse_smoothly(actual_x, actual_y, interrupt_on_lmb_release=True)
+                makcu_controller.move_mouse_smoothly(actual_x, actual_y, interrupt_on_lmb_release=True)
 
-                if move_completed:
-                    total_y_movement += actual_y
+                total_y_movement += actual_y
 
                 elapsed = time.perf_counter() - start_time
                 remaining_delay = delay - elapsed
