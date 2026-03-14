@@ -1,8 +1,9 @@
-build/
-build_env/
-*.spec
-__pycache__/
-*.pyc
+saved_scripts/
 config.json
 config.json.bak
-*.tmp
+config.json.tmp
+*.spec
+build/
+build_env/
+__pycache__/
+*.pyc
