@@ -34,27 +34,27 @@ class FlashlightMenu(ctk.CTkFrame):
         self.cooldown_entry.pack(padx=0, pady=3, fill="x", side="left")
         ctk.CTkLabel(cooldown_frame, text="Cooldown (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(padx=3, pady=3, side="right")
 
-        # Pre-fire delay — Min and Max on one line
+        # Pre-fire delay — Min and Max on one line, label on right to match other rows
         pre_fire_frame = ctk.CTkFrame(self, fg_color="transparent")
         pre_fire_frame.pack(fill="x")
 
-        ctk.CTkLabel(pre_fire_frame, text="Pre-Fire (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(side="left", padx=(0, 5), pady=3)
-
         self._pre_fire_min_var = ctk.StringVar(value="15")
         self.pre_fire_min_entry = ctk.CTkEntry(
-            pre_fire_frame, textvariable=self._pre_fire_min_var, width=60,
+            pre_fire_frame, textvariable=self._pre_fire_min_var, width=55,
             border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
         )
-        self.pre_fire_min_entry.pack(side="left", padx=(0, 3), pady=3)
+        self.pre_fire_min_entry.pack(side="left", padx=(0, 2), pady=3)
 
-        ctk.CTkLabel(pre_fire_frame, text="to", font=ctk.CTkFont(size=12), text_color="#888888").pack(side="left", padx=3, pady=3)
+        ctk.CTkLabel(pre_fire_frame, text="to", font=ctk.CTkFont(size=12), text_color="#888888").pack(side="left", padx=2, pady=3)
 
         self._pre_fire_max_var = ctk.StringVar(value="15")
         self.pre_fire_max_entry = ctk.CTkEntry(
-            pre_fire_frame, textvariable=self._pre_fire_max_var, width=60,
+            pre_fire_frame, textvariable=self._pre_fire_max_var, width=55,
             border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
         )
-        self.pre_fire_max_entry.pack(side="left", padx=(0, 3), pady=3)
+        self.pre_fire_max_entry.pack(side="left", padx=(2, 0), pady=3)
+
+        ctk.CTkLabel(pre_fire_frame, text="Pre-Fire Delay (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(side="right", padx=3, pady=3)
 
     # ── Getters ──────────────────────────────────────────────────────────────
 
