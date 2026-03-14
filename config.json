@@ -1,11 +1,11 @@
 {
   "recoil": {
-    "enabled": 1,
+    "enabled": 0,
     "toggle_keybind": "M5",
     "cycle_keybind": "NONE",
     "require_aim": 0,
     "loop_recoil": 0,
-    "randomisation": 0,
+    "randomisation": 1,
     "return_crosshair": 0,
     "randomisation_strength": 0.5,
     "recoil_scalar": 1.0,
@@ -13,16 +13,18 @@
     "y_control": 1.0,
     "return_speed": 0.5,
     "scripts_dir": "C:/Scripts/Flashlight/Cearum-Recoil-main/saved_scripts/ABI",
-    "loaded_script": "NONE"
+    "loaded_script": "Aug - Best"
   },
   "flashlight": {
-    "enabled": 1,
+    "enabled": 0,
     "keybind": "M4",
-    "cooldown_ms": "500",
-    "pre_fire_ms": "175"
+    "hold_threshold_ms": "20",
+    "cooldown_ms": "5000",
+    "pre_fire_min_ms": "110",
+    "pre_fire_max_ms": "180"
   },
   "settings": {
     "game_scalar": "Arena Breakout Infinite",
-    "cs2_sensitivity": ""
+    "game_sensitivity": ""
   }
 }

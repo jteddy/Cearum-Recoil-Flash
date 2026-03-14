@@ -12,49 +12,49 @@ class FlashlightMenu(ctk.CTkFrame):
             self, "Flashlight Keybind", ["M4", "M5", "MMB", "NONE"], "NONE"
         )
 
-        # Cooldown text input — auto-applied on every keystroke
+        # Hold threshold
+        hold_frame = ctk.CTkFrame(self, fg_color="transparent")
+        hold_frame.pack(fill="x")
+        self._hold_threshold_var = ctk.StringVar(value="50")
+        self.hold_threshold_entry = ctk.CTkEntry(
+            hold_frame, textvariable=self._hold_threshold_var,
+            border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
+        )
+        self.hold_threshold_entry.pack(padx=0, pady=3, fill="x", side="left")
+        ctk.CTkLabel(hold_frame, text="Hold Threshold (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(padx=3, pady=3, side="right")
+
+        # Cooldown
         cooldown_frame = ctk.CTkFrame(self, fg_color="transparent")
         cooldown_frame.pack(fill="x")
-
         self._cooldown_var = ctk.StringVar(value="500")
         self.cooldown_entry = ctk.CTkEntry(
-            cooldown_frame,
-            textvariable=self._cooldown_var,
-            border_width=1,
-            border_color="#404040",
-            fg_color="#1A1A1A",
-            text_color="#FFFFFF",
+            cooldown_frame, textvariable=self._cooldown_var,
+            border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
         )
         self.cooldown_entry.pack(padx=0, pady=3, fill="x", side="left")
+        ctk.CTkLabel(cooldown_frame, text="Cooldown (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(padx=3, pady=3, side="right")
 
-        ctk.CTkLabel(
-            cooldown_frame,
-            text="Cooldown (ms)",
-            font=ctk.CTkFont(size=12),
-            text_color="#FFFFFF",
-        ).pack(padx=3, pady=3, side="right")
-
-        # Pre-fire delay text input — auto-applied on every keystroke
+        # Pre-fire delay — Min and Max on one line
         pre_fire_frame = ctk.CTkFrame(self, fg_color="transparent")
         pre_fire_frame.pack(fill="x")
 
-        self._pre_fire_var = ctk.StringVar(value="15")
-        self.pre_fire_entry = ctk.CTkEntry(
-            pre_fire_frame,
-            textvariable=self._pre_fire_var,
-            border_width=1,
-            border_color="#404040",
-            fg_color="#1A1A1A",
-            text_color="#FFFFFF",
-        )
-        self.pre_fire_entry.pack(padx=0, pady=3, fill="x", side="left")
+        ctk.CTkLabel(pre_fire_frame, text="Pre-Fire (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(side="left", padx=(0, 5), pady=3)
 
-        ctk.CTkLabel(
-            pre_fire_frame,
-            text="Pre-Fire Delay (ms)",
-            font=ctk.CTkFont(size=12),
-            text_color="#FFFFFF",
-        ).pack(padx=3, pady=3, side="right")
+        self._pre_fire_min_var = ctk.StringVar(value="15")
+        self.pre_fire_min_entry = ctk.CTkEntry(
+            pre_fire_frame, textvariable=self._pre_fire_min_var, width=60,
+            border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
+        )
+        self.pre_fire_min_entry.pack(side="left", padx=(0, 3), pady=3)
+
+        ctk.CTkLabel(pre_fire_frame, text="to", font=ctk.CTkFont(size=12), text_color="#888888").pack(side="left", padx=3, pady=3)
+
+        self._pre_fire_max_var = ctk.StringVar(value="15")
+        self.pre_fire_max_entry = ctk.CTkEntry(
+            pre_fire_frame, textvariable=self._pre_fire_max_var, width=60,
+            border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
+        )
+        self.pre_fire_max_entry.pack(side="left", padx=(0, 3), pady=3)
 
     # ── Getters ──────────────────────────────────────────────────────────────
 
@@ -64,30 +64,46 @@ class FlashlightMenu(ctk.CTkFrame):
     def get_flashlight_keybind(self) -> str:
         return self.flashlight_keybind.get()
 
-    def get_cooldown_ms(self) -> float:
-        """Return the cooldown in seconds (converted from the ms text field)."""
+    def get_hold_threshold(self) -> float:
         try:
-            value = float(self._cooldown_var.get().strip())
-            return max(0.0, value) / 1000.0
+            return max(0.0, float(self._hold_threshold_var.get().strip())) / 1000.0
         except ValueError:
-            return 0.5  # safe default
+            return 0.05
+
+    def get_cooldown_ms(self) -> float:
+        try:
+            return max(0.0, float(self._cooldown_var.get().strip())) / 1000.0
+        except ValueError:
+            return 0.5
 
     def get_pre_fire_delay(self) -> float:
-        """Return the pre-fire delay in seconds (converted from the ms text field)."""
+        """Return a randomised delay between min and max (in seconds)."""
+        import random
         try:
-            value = float(self._pre_fire_var.get().strip())
-            return max(0.0, value) / 1000.0
+            min_ms = max(0.0, float(self._pre_fire_min_var.get().strip()))
         except ValueError:
-            return 0.015  # safe default
+            min_ms = 15.0
+        try:
+            max_ms = max(0.0, float(self._pre_fire_max_var.get().strip()))
+        except ValueError:
+            max_ms = 15.0
+
+        # Ensure min <= max
+        if min_ms > max_ms:
+            min_ms, max_ms = max_ms, min_ms
+
+        return random.uniform(min_ms, max_ms) / 1000.0
 
     # ── Config persistence ────────────────────────────────────────────────────
 
     def get_config(self) -> dict:
         return {
-            "enabled":     self.enable_checkbox.get(),
-            "keybind":     self.flashlight_keybind.get(),
-            "cooldown_ms": self._cooldown_var.get(),
-            "pre_fire_ms": self._pre_fire_var.get(),
+            "enabled":           self.enable_checkbox.get(),
+            "keybind":           self.flashlight_keybind.get(),
+            "hold_threshold_ms": self._hold_threshold_var.get(),
+            "cooldown_ms":       self._cooldown_var.get(),
+            "pre_fire_min_ms":   self._pre_fire_min_var.get(),
+            "pre_fire_max_ms":   self._pre_fire_max_var.get(),
         }
 
     def load_config(self, data: dict) -> None:
@@ -98,7 +114,15 @@ class FlashlightMenu(ctk.CTkFrame):
                 self.enable_checkbox.deselect()
         if "keybind" in data:
             self.flashlight_keybind.set(data["keybind"])
+        if "hold_threshold_ms" in data:
+            self._hold_threshold_var.set(data["hold_threshold_ms"])
         if "cooldown_ms" in data:
             self._cooldown_var.set(data["cooldown_ms"])
+        # Support old single pre_fire_ms key — load into both min and max
         if "pre_fire_ms" in data:
-            self._pre_fire_var.set(data["pre_fire_ms"])
+            self._pre_fire_min_var.set(data["pre_fire_ms"])
+            self._pre_fire_max_var.set(data["pre_fire_ms"])
+        if "pre_fire_min_ms" in data:
+            self._pre_fire_min_var.set(data["pre_fire_min_ms"])
+        if "pre_fire_max_ms" in data:
+            self._pre_fire_max_var.set(data["pre_fire_max_ms"])

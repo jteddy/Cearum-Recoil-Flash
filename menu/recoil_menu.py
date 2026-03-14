@@ -3,7 +3,6 @@ import os
 from tkinter import filedialog
 
 from menu.custom_widgets.widgets import Widgets
-from mouse.makcu import makcu_controller
 
 
 class RecoilMenu(ctk.CTkFrame):

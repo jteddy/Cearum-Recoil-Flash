@@ -15,6 +15,7 @@ class makcu_controller:
     }
 
     connection_lock = threading.Lock()
+    command_lock = threading.Lock()  # Prevents simultaneous writes to the device
     is_connected_flag = False 
 
 
@@ -73,16 +74,17 @@ class makcu_controller:
 
         mck = makcu_controller.controller
         try:
-            if button_name == "LMB":
-                mck.click(MouseButton.LEFT)
-            elif button_name == "RMB":
-                mck.click(MouseButton.RIGHT)
-            elif button_name == "MMB":
-                mck.click(MouseButton.MIDDLE)
-            elif button_name == "M4":
-                mck.click(MouseButton.MOUSE4)
-            elif button_name == "M5":
-                mck.click(MouseButton.MOUSE5)
+            with makcu_controller.command_lock:
+                if button_name == "LMB":
+                    mck.click(MouseButton.LEFT)
+                elif button_name == "RMB":
+                    mck.click(MouseButton.RIGHT)
+                elif button_name == "MMB":
+                    mck.click(MouseButton.MIDDLE)
+                elif button_name == "M4":
+                    mck.click(MouseButton.MOUSE4)
+                elif button_name == "M5":
+                    mck.click(MouseButton.MOUSE5)
             return True
         except Exception as e:
             print(f"[MAKCU] Click error: {e}")
@@ -96,7 +98,8 @@ class makcu_controller:
             return False
 
         try:
-            makcu_controller.controller.move(x, y)
+            with makcu_controller.command_lock:
+                makcu_controller.controller.move(x, y)
             return True
         except Exception as e:
             print(f"[MAKCU] Move error: {e}")
@@ -139,7 +142,8 @@ class makcu_controller:
                 accumulated_y += move_y
 
                 if move_x or move_y:
-                    mck.move(move_x, move_y)
+                    with makcu_controller.command_lock:
+                        mck.move(move_x, move_y)
 
                 time.sleep(step_delay)
 

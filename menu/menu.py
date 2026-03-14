@@ -1,6 +1,5 @@
 import customtkinter as ctk
 
-from .automation_menu import AutomationMenu
 from .recoil_menu import RecoilMenu
 from .settings_menu import SettingsMenu
 from .flashlight_menu import FlashlightMenu
