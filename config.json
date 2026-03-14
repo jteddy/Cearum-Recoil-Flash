@@ -1,6 +1,6 @@
 {
   "recoil": {
-    "enabled": 0,
+    "enabled": 1,
     "toggle_keybind": "M5",
     "cycle_keybind": "NONE",
     "require_aim": 0,

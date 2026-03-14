@@ -7,7 +7,7 @@ class FlashlightMenu(ctk.CTkFrame):
         super().__init__(parent)
         self.configure(fg_color="#232323")
 
-        self.enable_checkbox, _ = Widgets.render_checkbox(self, "Enable", False)
+        self.enable_checkbox, _ = Widgets.render_checkbox(self, "Master Enable", False)
         self.flashlight_keybind, _ = Widgets.render_combobox(
             self, "Flashlight Keybind", ["M4", "M5", "MMB", "NONE"], "NONE"
         )
