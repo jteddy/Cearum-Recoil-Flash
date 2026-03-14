@@ -7,12 +7,13 @@ from menu.custom_widgets.widgets import Widgets
 
 
 def _default_scripts_dir() -> str:
-    """Always resolve saved_scripts relative to the exe or project root."""
+    """Always resolve saved_scripts relative to the exe or script location."""
     if getattr(sys, 'frozen', False):
         base = os.path.dirname(sys.executable)
     else:
+        # When running from source, go up from menu/ to project root
         base = os.path.dirname(os.path.abspath(__file__))
-        base = os.path.dirname(base)  # go up from menu/ to project root
+        base = os.path.dirname(base)
     return os.path.join(base, "saved_scripts")
 
 
