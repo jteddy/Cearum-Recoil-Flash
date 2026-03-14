@@ -1,5 +1,8 @@
-echo "__pycache__/" >> .gitignore
-echo "*.pyc" >> .gitignore
-echo "config.json" >> .gitignore
-echo "config.json.bak" >> .gitignore
-echo "*.tmp" >> .gitignore
+build/
+build_env/
+*.spec
+__pycache__/
+*.pyc
+config.json
+config.json.bak
+*.tmp
