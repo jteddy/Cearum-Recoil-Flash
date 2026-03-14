@@ -16,7 +16,8 @@ class makcu_controller:
 
     connection_lock = threading.Lock()
     command_lock = threading.Lock()  # Prevents simultaneous writes to the device
-    is_connected_flag = False 
+    is_connected_flag = False
+    _on_disconnected = None  # Callback fired when device disconnects 
 
 
     @staticmethod
@@ -68,6 +69,20 @@ class makcu_controller:
         makcu_controller.connect()
 
     @staticmethod
+    def register_disconnect_callback(callback) -> None:
+        """Register a function to call when the device disconnects unexpectedly."""
+        makcu_controller._on_disconnected = callback
+
+    @staticmethod
+    def _notify_disconnected() -> None:
+        """Fire the disconnect callback if one is registered."""
+        if makcu_controller._on_disconnected:
+            try:
+                makcu_controller._on_disconnected()
+            except Exception:
+                pass
+
+    @staticmethod
     def click_button(button_name: str):
         if not makcu_controller.is_connected():
             return False
@@ -89,6 +104,7 @@ class makcu_controller:
         except Exception as e:
             print(f"[MAKCU] Click error: {e}")
             makcu_controller.is_connected_flag = False
+            makcu_controller._notify_disconnected()
             return False
 
 
@@ -104,6 +120,7 @@ class makcu_controller:
         except Exception as e:
             print(f"[MAKCU] Move error: {e}")
             makcu_controller.is_connected_flag = False
+            makcu_controller._notify_disconnected()
             return False
 
 
@@ -152,6 +169,7 @@ class makcu_controller:
         except Exception as e:
             print(f"[MAKCU] Smooth move error: {e}")
             makcu_controller.is_connected_flag = False
+            makcu_controller._notify_disconnected()
             return False
 
 

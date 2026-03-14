@@ -33,6 +33,7 @@ def main():
 
     app.set_makcu_connected()
     makcu_controller.StartButtonListener()
+    makcu_controller.register_disconnect_callback(app.set_makcu_disconnected)
 
     recoil_thread = threading.Thread(
         target=recoil.run_recoil,
