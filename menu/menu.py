@@ -12,7 +12,7 @@ from PIL import Image
 import os
 import sys
 
-VERSION = "V1.0.5-F-0.2"
+VERSION = "V1.0.5-F-0.3"
 
 
 class MenuApp(ctk.CTk):

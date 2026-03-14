@@ -108,7 +108,7 @@ class makcu_controller:
 
 
     @staticmethod
-    def move_mouse_smoothly(dx, dy, steps=20, duration=0.05):
+    def move_mouse_smoothly(dx, dy, steps=20, duration=0.05, interrupt_on_lmb_release=False):
         if not makcu_controller.is_connected():
             return False
 
@@ -126,6 +126,10 @@ class makcu_controller:
             accumulated_y = 0.0
 
             for i in range(steps):
+                # Abort mid-movement if LMB has been released — prevents over-compensation on tap fire
+                if interrupt_on_lmb_release and not makcu_controller.button_states.get("LMB", False):
+                    return False
+
                 t = (i + 1) / steps
                 eased = ease_out_quad(t)
 

@@ -104,7 +104,7 @@ class recoil:
                 actual_y = y * RecoilMenu.get_y_control(app) * scalar
 
                 start_time = time.perf_counter()
-                makcu_controller.move_mouse_smoothly(actual_x, actual_y)
+                makcu_controller.move_mouse_smoothly(actual_x, actual_y, interrupt_on_lmb_release=True)
 
                 total_y_movement += actual_y
 
