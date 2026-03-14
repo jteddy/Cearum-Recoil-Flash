@@ -33,6 +33,7 @@ def main():
 
     app.set_makcu_connected()
     makcu_controller.StartButtonListener()
+    app.start_status_polling()
 
     recoil_thread = threading.Thread(
         target=recoil.run_recoil,

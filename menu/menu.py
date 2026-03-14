@@ -2,7 +2,6 @@ import customtkinter as ctk
 import threading
 import time
 
-from .automation_menu import AutomationMenu
 from .recoil_menu import RecoilMenu
 from .settings_menu import SettingsMenu
 from .flashlight_menu import FlashlightMenu
@@ -41,15 +40,34 @@ class MenuApp(ctk.CTk):
         logo_image = CTkImage(light_image=logo, dark_image=logo, size=(120, 120))
         ctk.CTkLabel(self, image=logo_image, text="").pack(pady=(7, 0))
 
-        # Makcu connection status indicator — hidden by default, shown on connect
+        # Makcu connection status — flashes on connect then disappears
         self.status_label = ctk.CTkLabel(
             self,
-            text="● Makcu Connected",
+            text="",
             font=ctk.CTkFont(size=11),
             text_color="#44FF77",
         )
-        self.status_label.pack(pady=(0, 6))
-        self.status_label.configure(text="")  # hide until connected
+        self.status_label.pack(pady=(0, 2))
+
+        # Recoil / Flashlight status bar — always visible
+        status_bar = ctk.CTkFrame(self, fg_color="transparent")
+        status_bar.pack(pady=(0, 4))
+
+        self.recoil_status_label = ctk.CTkLabel(
+            status_bar,
+            text="● Recoil: OFF",
+            font=ctk.CTkFont(size=11),
+            text_color="#888888",
+        )
+        self.recoil_status_label.pack(side="left", padx=(0, 16))
+
+        self.flashlight_status_label = ctk.CTkLabel(
+            status_bar,
+            text="● Flashlight: OFF",
+            font=ctk.CTkFont(size=11),
+            text_color="#888888",
+        )
+        self.flashlight_status_label.pack(side="left")
 
         self.tabs = ctk.CTkTabview(
             self, width=280, height=340, border_width=1,
@@ -70,21 +88,43 @@ class MenuApp(ctk.CTk):
         self.settings_menu = SettingsMenu(self.settings_tab)
         self.settings_menu.pack(padx=5, pady=5, fill="both", expand=True)
 
+    def start_status_polling(self):
+        """Start polling recoil and flashlight states every 200ms to update status bar."""
+        def _poll():
+            while True:
+                try:
+                    recoil_on = self.recoil_menu.get_is_enabled()
+                    flashlight_on = self.flashlight_menu.get_is_enabled()
+
+                    self.recoil_status_label.configure(
+                        text="● Recoil: ON" if recoil_on else "● Recoil: OFF",
+                        text_color="#44FF77" if recoil_on else "#888888",
+                    )
+                    self.flashlight_status_label.configure(
+                        text="● Flashlight: ON" if flashlight_on else "● Flashlight: OFF",
+                        text_color="#44FF77" if flashlight_on else "#888888",
+                    )
+                except Exception:
+                    pass
+                time.sleep(0.2)
+
+        threading.Thread(target=_poll, daemon=True).start()
+
     def set_makcu_connected(self):
-        """Flash 'Makcu Connected' green slowly for 10 seconds then hide it."""
+        """Flash Makcu Connected green for 10 seconds then hide."""
         def _flash():
             end_time = time.monotonic() + 10.0
             visible = True
             while time.monotonic() < end_time:
-                text = "● Makcu Connected" if visible else ""
-                color = "#44FF77"
                 try:
-                    self.status_label.configure(text=text, text_color=color)
+                    self.status_label.configure(
+                        text="● Makcu Connected" if visible else "",
+                        text_color="#44FF77"
+                    )
                 except Exception:
                     return
                 visible = not visible
-                time.sleep(0.8)  # 0.8s on/off — slow relaxed flash
-            # Hide after 10 seconds
+                time.sleep(0.8)
             try:
                 self.status_label.configure(text="")
             except Exception:
@@ -93,7 +133,6 @@ class MenuApp(ctk.CTk):
         threading.Thread(target=_flash, daemon=True).start()
 
     def set_makcu_disconnected(self):
-        """Show a persistent red disconnected label."""
         try:
             self.status_label.configure(text="● Makcu Not Connected", text_color="#FF4444")
         except Exception:
