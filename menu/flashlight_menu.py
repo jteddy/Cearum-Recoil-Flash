@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import random
 from menu.custom_widgets.widgets import Widgets
 
 
@@ -21,6 +22,7 @@ class FlashlightMenu(ctk.CTkFrame):
             border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
         )
         self.hold_threshold_entry.pack(padx=0, pady=3, fill="x", side="left")
+        self._bind_validation(self.hold_threshold_entry, self._hold_threshold_var)
         ctk.CTkLabel(hold_frame, text="Hold Threshold (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(padx=3, pady=3, side="right")
 
         # Cooldown
@@ -32,6 +34,7 @@ class FlashlightMenu(ctk.CTkFrame):
             border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
         )
         self.cooldown_entry.pack(padx=0, pady=3, fill="x", side="left")
+        self._bind_validation(self.cooldown_entry, self._cooldown_var)
         ctk.CTkLabel(cooldown_frame, text="Cooldown (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(padx=3, pady=3, side="right")
 
         # Pre-fire delay — Min and Max on one line, label on right to match other rows
@@ -44,6 +47,7 @@ class FlashlightMenu(ctk.CTkFrame):
             border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
         )
         self.pre_fire_min_entry.pack(side="left", padx=(0, 2), pady=3)
+        self._bind_validation(self.pre_fire_min_entry, self._pre_fire_min_var)
 
         ctk.CTkLabel(pre_fire_frame, text="to", font=ctk.CTkFont(size=12), text_color="#888888").pack(side="left", padx=2, pady=3)
 
@@ -53,8 +57,22 @@ class FlashlightMenu(ctk.CTkFrame):
             border_width=1, border_color="#404040", fg_color="#1A1A1A", text_color="#FFFFFF",
         )
         self.pre_fire_max_entry.pack(side="left", padx=(2, 0), pady=3)
+        self._bind_validation(self.pre_fire_max_entry, self._pre_fire_max_var)
 
         ctk.CTkLabel(pre_fire_frame, text="Pre-Fire Delay (ms)", font=ctk.CTkFont(size=12), text_color="#FFFFFF").pack(side="right", padx=3, pady=3)
+
+    # ── Input validation ─────────────────────────────────────────────────────
+
+    def _bind_validation(self, entry: ctk.CTkEntry, var: ctk.StringVar) -> None:
+        """Highlight entry red if value is not a valid non-negative number."""
+        def _validate(*_):
+            try:
+                val = float(var.get().strip())
+                color = "#404040" if val >= 0 else "#FF4444"
+            except ValueError:
+                color = "#FF4444"
+            entry.configure(border_color=color)
+        var.trace_add("write", _validate)
 
     # ── Getters ──────────────────────────────────────────────────────────────
 
@@ -78,7 +96,6 @@ class FlashlightMenu(ctk.CTkFrame):
 
     def get_pre_fire_delay(self) -> float:
         """Return a randomised delay between min and max (in seconds)."""
-        import random
         try:
             min_ms = max(0.0, float(self._pre_fire_min_var.get().strip()))
         except ValueError:

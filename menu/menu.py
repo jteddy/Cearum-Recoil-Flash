@@ -12,6 +12,8 @@ from PIL import Image
 import os
 import sys
 
+VERSION = "V1.0.6 F0.1"
+
 
 class MenuApp(ctk.CTk):
     def __init__(self):
@@ -27,7 +29,7 @@ class MenuApp(ctk.CTk):
             EXE_DIR = os.path.dirname(sys.executable)
         else:
             BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-            EXE_DIR = BASE_DIR
+            EXE_DIR = os.path.dirname(BASE_DIR)
 
         logo_path = os.path.join(EXE_DIR, "assets", "logo.png")
 
@@ -51,7 +53,7 @@ class MenuApp(ctk.CTk):
 
         # Recoil / Flashlight status bar — always visible
         status_bar = ctk.CTkFrame(self, fg_color="transparent")
-        status_bar.pack(pady=(0, 4))
+        status_bar.pack(pady=(0, 0))
 
         self.recoil_status_label = ctk.CTkLabel(
             status_bar,
@@ -68,6 +70,14 @@ class MenuApp(ctk.CTk):
             text_color="#888888",
         )
         self.flashlight_status_label.pack(side="left")
+
+        # Version label — bottom right of header
+        ctk.CTkLabel(
+            self,
+            text=VERSION,
+            font=ctk.CTkFont(size=9),
+            text_color="#444444",
+        ).pack(anchor="e", padx=10, pady=(0, 2))
 
         self.tabs = ctk.CTkTabview(
             self, width=280, height=340, border_width=1,
@@ -94,10 +104,9 @@ class MenuApp(ctk.CTk):
             while True:
                 try:
                     recoil_on = self.recoil_menu.get_is_enabled()
-                    flashlight_on = self.flashlight_menu.get_is_enabled()
-
-                    # Schedule UI updates on the main thread via after()
-                    self.after(0, lambda r=recoil_on, f=flashlight_on: self._update_status_labels(r, f))
+                    # Flashlight is truly active only when master enable AND recoil are both on
+                    flashlight_active = self.flashlight_menu.get_is_enabled() and recoil_on
+                    self.after(0, lambda r=recoil_on, f=flashlight_active: self._update_status_labels(r, f))
                 except Exception:
                     pass
                 time.sleep(0.2)
@@ -119,7 +128,7 @@ class MenuApp(ctk.CTk):
             pass
 
     def set_makcu_connected(self):
-        """Flash Makcu Connected green for 10 seconds then hide — UI updates via after()."""
+        """Flash Makcu Connected green for 10 seconds then hide."""
         def _flash():
             end_time = time.monotonic() + 10.0
             visible = True

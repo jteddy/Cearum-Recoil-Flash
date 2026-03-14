@@ -1,12 +1,23 @@
 import customtkinter as ctk
 import os
+import sys
 from tkinter import filedialog
 
 from menu.custom_widgets.widgets import Widgets
 
 
+def _default_scripts_dir() -> str:
+    """Always resolve saved_scripts relative to the exe or project root."""
+    if getattr(sys, 'frozen', False):
+        base = os.path.dirname(sys.executable)
+    else:
+        base = os.path.dirname(os.path.abspath(__file__))
+        base = os.path.dirname(base)  # go up from menu/ to project root
+    return os.path.join(base, "saved_scripts")
+
+
 class RecoilMenu(ctk.CTkFrame):
-    SCRIPTS_DIR = "./saved_scripts"
+    SCRIPTS_DIR = _default_scripts_dir()
     LOADED_SCRIPT_NAME = "NONE"
 
     def __init__(self, parent):

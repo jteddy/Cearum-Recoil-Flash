@@ -42,6 +42,15 @@ pyinstaller --onefile --noconsole --name Cearum ^
   --exclude-module pydoc ^
   main.pyw
 
+:: Copy assets to output so the exe can find them
+echo Copying assets...
+if exist assets (
+    xcopy /E /I /Y assets output\assets > nul
+    echo Assets copied to output\assets
+) else (
+    echo WARNING: assets folder not found - logo may not display
+)
+
 :: Check result
 if exist output\Cearum.exe (
     echo.
