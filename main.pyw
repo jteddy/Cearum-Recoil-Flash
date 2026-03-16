@@ -4,14 +4,14 @@ from features.recoil.recoil import recoil
 from features.flashlight.flashlight import flashlight
 from menu import config_manager
 
-import tkinter as tk
+import customtkinter as ctk
 ctk.set_appearance_mode("dark")
 import tkinter as tk
 from tkinter import messagebox
 
 import time
 import threading
-import os
+import os os
 
 
 def show_error(title: str, message: str):
