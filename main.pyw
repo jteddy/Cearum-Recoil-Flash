@@ -11,7 +11,7 @@ from tkinter import messagebox
 
 import time
 import threading
-import os os
+import os
 
 
 def show_error(title: str, message: str):
