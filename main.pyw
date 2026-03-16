@@ -5,6 +5,8 @@ from features.flashlight.flashlight import flashlight
 from menu import config_manager
 
 import tkinter as tk
+ctk.set_appearance_mode("dark")
+import tkinter as tk
 from tkinter import messagebox
 
 import time
